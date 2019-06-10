@@ -6,21 +6,26 @@ wd <- setwd("D:/Shared/BackedUp/Caitlin/GlobalConnect")
 
 ################################################################
 ## Load data
-PA.IIV <- st_read(dsn = paste0(wd,"/WDPA_Apr2019-shapefile/PA.IIV.terr.1km.shp"))
-PA.IV <- st_read(dsn = paste0(wd,"/WDPA_Apr2019-shapefile/PA.IV.terr.1km.shp"))
-PA.IVI <- st_read(dsn = paste0(wd,"/WDPA_Apr2019-shapefile/PA.IVI.terr.1km.shp"))
+PA.IIV <- st_read(dsn = paste0(data.dir,"WDPA_Apr2019-shapefile/PA.IIV.terr.1km.shp"))
+PA.IV <- st_read(dsn = paste0(data.dir,"WDPA_Apr2019-shapefile/PA.IV.terr.1km.shp"))
+PA.IVI <- st_read(dsn = paste0(data.dir,"WDPA_Apr2019-shapefile/PA.IVI.terr.1km.shp"))
 
 
 ## Load raster template 
 clim.r <- raster("def.1961.1990.climo.tif")
-extent(clim.r)
-crs(clim.r)
+template.r <- raster(paste0(data.dir,"landcover.2007.4km.ea.tif"))
+# extent(clim.r)
+# crs(clim.r)
+# res(clim.r)
+extent(template.r)
+crs(template.r)
+res(template.r)
 
 ## Create higher res raster for PA conversion.
 # (Will want to retain 4km pixels with at least 75% PA)
 ref.ras <- raster(xmn = -16940774, xmx = 16939226 ,
                   ymn = -8479671, ymx = 8396329,
-                  resolution = 2000, # 1/4 size of climate raster
+                  resolution = 2000, # 1/4 size of template raster
                   crs = "+proj=eck4 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs", 
                   vals = 1)
 
@@ -56,10 +61,10 @@ plot(PA.IV.r, xlim=c(-9220000,-9040000), ylim=c(5350000,5590000))
 plot(PA.IVI.r, xlim=c(-9220000,-9040000), ylim=c(5350000,5590000))
 par(mfrow=c(1,1))
 
-# res should be the only parameter different: clim coarser.
-extent(PA.IIV.r) ; extent(PA.IV.r) ; extent(PA.IVI.r) ; extent(clim.r)
-crs(PA.IIV.r) ; crs(PA.IV.r); crs(PA.IVI.r) ; crs(clim.r)
-res(PA.IIV.r) ; res(PA.IV.r); res(PA.IVI.r); res(clim.r)
+# res should be the only parameter different: template coarser.
+extent(PA.IIV.r) ; extent(PA.IV.r) ; extent(PA.IVI.r) ; extent(template.r)
+crs(PA.IIV.r) ; crs(PA.IV.r); crs(PA.IVI.r) ; crs(template.r)
+res(PA.IIV.r) ; res(PA.IV.r); res(PA.IVI.r); res(template.r)
 
 
 #####################################################
@@ -93,29 +98,32 @@ PA.IV.r.agg[PA.IV.r.agg >= 3] <- 1
 PA.IVI.r.agg[PA.IVI.r.agg < 3] <- NA
 PA.IVI.r.agg[PA.IVI.r.agg >= 3] <- 1
 
-## DO NOT RESAMPLE TO CLIM.R ELSE COARSEN ##
+## DO NOT RESAMPLE TO TEMPLATE.R ELSE COARSEN ##
 
-## Retain only pixels that don't have clim val of 0.
+## Retain only pixels that don't have template val 17 (WATER).
 # Could overlay, e.g....
 # park.85.2050.r <- overlay(park.MHHW.r, slr85.r, low85.r,
 #                           fun=function(r1, r2, r3){return(r1*r2*r3)})
-# But creating mask with clim = 0 <- NA leaves less to process.
-mask <- clim.r
-mask[mask == 0] <- NA
+# But creating mask with clim = 17 <- NA leaves less to process.
+mask <- template.r
+mask[mask == 17] <- NA # 17 is water in template.
 PA.IIV.r.fin <- mask(PA.IIV.r.agg, mask)
 PA.IV.r.fin <- mask(PA.IV.r.agg, mask)
 PA.IVI.r.fin <- mask(PA.IVI.r.agg, mask)
 
-# Alt: Set non-zero values to 1, all non-clim = 0. 
-# mask01 <- clim.r
-# mask01[! mask01 == 0] <- 1
-# # par(mfrow=c(1,1)) ; plot(mask01)
-# PA.IIV.r.overlay <- overlay(PA.IIV.r.agg, mask01,
-#                         fun=function(r1, r2){return(r1*r2)})
-# PA.IV.r.overlay <- overlay(PA.IV.r.agg, mask01,
-#                        fun=function(r1, r2){return(r1*r2)})
-# PA.IVI.r.overlay <- overlay(PA.IVI.r.agg, mask01,
-#                         fun=function(r1, r2){return(r1*r2)})
+# Alt: Set non-zero values to 1, all non-template = 0. 
+mask01 <- template.r
+mask01[mask01 == 17] <- 0
+mask01[! mask01 == 0] <- 1
+# par(mfrow=c(1,1))
+# plot(mask01)
+# par(mfrow=c(1,1)) ; plot(mask01)
+PA.IIV.r.overlay <- overlay(PA.IIV.r.agg, mask01,
+                        fun=function(r1, r2){return(r1*r2)})
+PA.IV.r.overlay <- overlay(PA.IV.r.agg, mask01,
+                       fun=function(r1, r2){return(r1*r2)})
+PA.IVI.r.overlay <- overlay(PA.IVI.r.agg, mask01,
+                        fun=function(r1, r2){return(r1*r2)})
 
 
 #########################################################
@@ -134,7 +142,7 @@ plot(PA.IV.r.fin, xlim=c(-10463223,-10425092), ylim=c(5130348,5214084))
 title("cat I-V")
 plot(PA.IVI.r.fin, xlim=c(-10463223,-10425092), ylim=c(5130348,5214084))
 title("cat I-VI")
-plot(st_geometry(redwoodish), xlim=c(-10463223,-10425092), ylim=c(5130348,5214084), col = "green")
+plot(st_geometry(redwood), xlim=c(-10463223,-10425092), ylim=c(5130348,5214084), col = "green")
 title("orig shp")
 par(mfrow=c(1,1))
 
@@ -156,9 +164,9 @@ par(mfrow=c(1,1))
 
 
 # Write
-writeRaster(PA.IIV.r.fin, paste0("PA.IIV.r.GTE75perc_",currentDate,".tif"))
-writeRaster(PA.IV.r.fin, paste0("PA.IV.r.GTE75perc_",currentDate,".tif"))
-writeRaster(PA.IVI.r.fin, paste0("PA.IVI.r.GTE75perc_",currentDate,".tif"))
+writeRaster(PA.IIV.r.fin, paste0(out.dir,"PA.IIV.r.GTE75perc_",currentDate,".tif"))
+writeRaster(PA.IV.r.fin, paste0(out.dir,"PA.IV.r.GTE75perc_",currentDate,".tif"))
+writeRaster(PA.IVI.r.fin, paste0(out.dir,"PA.IVI.r.GTE75perc_",currentDate,".tif"))
 
 
 
