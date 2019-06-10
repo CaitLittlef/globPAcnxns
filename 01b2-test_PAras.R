@@ -4,9 +4,9 @@
 # In fact, something in st_combine() seemed to be dropping out overlapping areas.
 # Asked on StackExchange: https://gis.stackexchange.com/questions/319464/why-does-fasterize-gives-different-output-for-multipolygons-with-and-without-int
 
-# PA.IIV.terr.1km <- st_read(dsn = paste0(wd,"/WDPA_Apr2019-shapefile/PA.IIV.terr.1km.shp"))
-# PA.IV.terr.1km <- st_read(dsn = paste0(wd,"/WDPA_Apr2019-shapefile/PA.IV.terr.1km.shp"))
-# PA.IVI.terr.1km <- st_read(dsn = paste0(wd,"/WDPA_Apr2019-shapefile/PA.IVI.terr.1km.shp"))
+# PA.IIV.terr.1km <- st_read(dsn = paste0(data.dir,"/WDPA_Apr2019-shapefile/PA.IIV.terr.1km.shp"))
+# PA.IV.terr.1km <- st_read(dsn = paste0(data.dir,"/WDPA_Apr2019-shapefile/PA.IV.terr.1km.shp"))
+# PA.IVI.terr.1km <- st_read(dsn = paste0(data.dir,"/WDPA_Apr2019-shapefile/PA.IVI.terr.1km.shp"))
 
 
 # Pull out Yellowstone Grand Teton
