@@ -5,9 +5,9 @@
 #####################################
 ## Set working directory to input data
 # wd <- setwd("//goshawk.sefs.uw.edu/Space_Lawler/Shared/BackedUp/Caitlin")
-wd <- setwd("D:/Shared/BackedUp/Caitlin/GlobalConnect") 
-data.dir <- "D:/Shared/BackedUp/Caitlin/GlobalConnect/data"
-out.dir <- "D:/Shared/BackedUp/Caitlin/GlobalConnect/output"
+wd <- setwd("D:/Shared/BackedUp/Caitlin/GlobalCnxns") 
+data.dir <- "D:/Shared/BackedUp/Caitlin/GlobalCnxns/data/"
+out.dir <- "D:/Shared/BackedUp/Caitlin/GlobalCnxns/output/"
 
 #####################################
 # Install packages if not already installed
