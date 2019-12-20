@@ -1,5 +1,5 @@
 currentDate <- Sys.Date()
-wd <- setwd("D:/Shared/BackedUp/Caitlin/GlobalConnect") 
+wd <- setwd("D:/Shared/BackedUp/Caitlin/GlobalCnxns") 
 
 ## Slim-down PA database, per criteria:
 # 1) Cats I-IV, I-V, IVI
@@ -12,7 +12,7 @@ wd <- setwd("D:/Shared/BackedUp/Caitlin/GlobalConnect")
 ##########################################################
 ## Load spatial data
 # Global database of PAs
-PA.all <- st_read(dsn = paste0(wd,"/WDPA_Apr2019-shapefile/WDPA_Apr2019-shapefile-polygons.shp"))
+PA.all <- st_read(dsn = paste0(data.dir,"/WDPA_Apr2019-shapefile/WDPA_Apr2019-shapefile-polygons.shp"))
 PA.slim <- PA.all %>%
   dplyr::select(NAME, DESIG_ENG, IUCN_CAT, MARINE, STATUS, REP_M_AREA, REP_AREA, GIS_M_AREA, GIS_AREA) 
 
@@ -38,7 +38,7 @@ PA.IVI.terr <- PA.IVI %>%
   filter(! STATUS == "Proposed")
 
 
-## Remove anything GTE 1 km2 (reported; not calc'ed by UNEP)
+## Remove anything LTE 1 km2 (reported; not calc'ed by UNEP)
 PA.IIV.terr.1km <- PA.IIV.terr %>%
   filter(REP_AREA >= 1) # 37180 remain
 PA.IV.terr.1km <- PA.IV.terr %>%
